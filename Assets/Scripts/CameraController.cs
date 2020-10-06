@@ -1,20 +1,50 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour
 {
-    //minor change
-    
-    // Start is called before the first frame update
-    void Start()
+    private Vector2 movement;
+    private Rigidbody rb;
+    private Transform transform;
+    private Camera cam;
+
+    private float moveSpeed = 20f; //units/s
+    private float rotateSpeed = 2.5f; //degrees/s
+
+    public void Start()
     {
-        
+        rb = GetComponent<Rigidbody>();
+        transform = GetComponent<Transform>();
+        cam = GetComponent<Camera>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void FixedUpdate()
     {
+        Mouse mouse = Mouse.current;
+        if(mouse == null)
+            return;
         
+        //Set rotation
+        Quaternion currRot = rb.rotation;
+        Quaternion nextRot = new Quaternion();
+        Ray ray = cam.ScreenPointToRay(mouse.position.ReadValue());
+        nextRot = Quaternion.LookRotation(ray.direction);
+        rb.MoveRotation(Quaternion.Lerp(currRot, nextRot, Time.fixedDeltaTime * rotateSpeed));
+        //Set velocity
+        Vector3 vel = new Vector3();
+        vel = transform.right * movement.x * moveSpeed;
+        vel += transform.forward * movement.y * moveSpeed;
+        rb.velocity = vel;
+        //rb.velocity.x = transform.right * movement.x * moveSpeed;
+        //rb.velocity.y = transform.forward * movement.y * moveSpeed;
     }
+
+    //Move controlled by the Input Controller
+    public void Move(InputAction.CallbackContext context)
+    {
+        movement = context.ReadValue<Vector2>();
+    }
+
 }
