@@ -8,7 +8,6 @@ public class BoidData : ScriptableObject
     public float viewDistance;
 
     public float bound;
-    public BoxCollider boxCollider;
 
     public float maxVelocity;
     public float maxAngularVel;

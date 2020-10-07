@@ -15,7 +15,7 @@ MonoBehaviour:
   FOV: 90
   viewDistance: 150
   bound: 200
-  maxVelocity: 20
+  maxVelocity: 10
   maxAngularVel: 15
   seperationWeight: 5
   alignmentWeight: 5

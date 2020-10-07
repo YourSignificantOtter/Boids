@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 public class CameraController : MonoBehaviour
 {
     private Vector2 movement;
+    private Vector2 rotation;
+    private float altitude;
     private Rigidbody rb;
     private Camera cam;
 
@@ -20,6 +22,7 @@ public class CameraController : MonoBehaviour
 
     public void FixedUpdate()
     {
+        /*
         Mouse mouse = Mouse.current;
         if(mouse == null)
             return;
@@ -30,10 +33,13 @@ public class CameraController : MonoBehaviour
         Ray ray = cam.ScreenPointToRay(mouse.position.ReadValue());
         nextRot = Quaternion.LookRotation(ray.direction);
         rb.MoveRotation(Quaternion.Lerp(currRot, nextRot, Time.fixedDeltaTime * rotateSpeed));
+        */
+
         //Set velocity
         Vector3 vel = new Vector3();
         vel = transform.right * movement.x * moveSpeed;
         vel += transform.forward * movement.y * moveSpeed;
+        vel += transform.up * altitude * moveSpeed;
         rb.velocity = vel;
     }
 
@@ -41,6 +47,17 @@ public class CameraController : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         movement = context.ReadValue<Vector2>();
+    }
+
+    //Altitude controlled by the input controller
+    public void Altitude(InputAction.CallbackContext context)
+    {
+        altitude = context.ReadValue<float>();
+    }
+
+    public void Rotate(InputAction.CallbackContext context)
+    {
+        rotation = context.ReadValue<Vector2>();
     }
 
 }

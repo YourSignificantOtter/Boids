@@ -22,7 +22,9 @@ public class BoidContainer : MonoBehaviour
     {
         currNumBoids = 0;
         data.bound = bound;
-        data.boxCollider = GetComponent<BoxCollider>();
+        BoxCollider bc = gameObject.GetComponent<BoxCollider>();
+        bc.size = new Vector3(bound, bound, bound);
+        bc.center = transform.position;
         spawnBoids();
     }
 
@@ -30,7 +32,7 @@ public class BoidContainer : MonoBehaviour
     {
         if(currNumBoids != numBoids)
         {
-            if(currNumBoids < numBoids)
+            if(currNumBoids > numBoids)
             {
                 removeBoids();
             }
@@ -48,8 +50,10 @@ public class BoidContainer : MonoBehaviour
         int n = currNumBoids - numBoids;
 
         for(; n > 0; n--)
-        {
+        {   
+            GameObject b = BoidList[BoidList.Count - 1];
             BoidList.RemoveAt(BoidList.Count - 1);
+            Destroy(b);
         }
         currNumBoids = numBoids;
     }
@@ -64,7 +68,6 @@ public class BoidContainer : MonoBehaviour
         {
             GameObject newBoid = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             newBoid.name = "Boid_" + BoidList.Count;
-            newBoid.transform.SetParent(transform);
             newBoid.AddComponent<Boid>();
             newBoid.GetComponent<Boid>().SetBoidData(data);
             newBoid.GetComponent<Boid>().Spawn();

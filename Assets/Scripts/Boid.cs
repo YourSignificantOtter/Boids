@@ -42,8 +42,8 @@ public class Boid : MonoBehaviour
             return;
 
         //Spawn the boid at a random location
-        Vector3 spawnPos = new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)) * _bd.bound;
-        gameObject.transform.position = spawnPos;
+        Vector3 spawnPos = new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)) * (_bd.bound / 2);
+        transform.position = spawnPos;
         //Spawn the boid with a random direction
         _rb.rotation = Random.rotation;
         //Spawn the boid with a random velocity
@@ -51,28 +51,39 @@ public class Boid : MonoBehaviour
         _rb.velocity = Random.insideUnitSphere * _bd.maxVelocity;
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerExit(Collider other)
     {
         //We collided with the wall (or another object but not likely)
         //teleport us to the opposite side like pac-man
-        Debug.Log("Trigger entered!");
+        Vector3 vel = _rb.velocity;
+        _rb.isKinematic = true;
         //Which wall did we trigger on? +-x, +-y, +-z?
         //Get the maximum of the abs of each component to find out
         Vector3 pos = transform.position;
-        float max = Mathf.Max(Mathf.Abs(pos.x), Mathf.Abs(pos.y), Mathf.Abs(pos.z));
-        if(max == Mathf.Abs(pos.x))
+        float max = 0.0f;
+        int maxIdx = -1;
+        for(int i = 0; i < 3; i++)
         {
-            pos.x *= -1.0f;
+            if(Mathf.Abs(pos[i]) >= max)
+            {
+                maxIdx = i;
+                max = Mathf.Abs(pos[i]);
+            }
         }
-        else if(max == Mathf.Abs(pos.y))
+        if(maxIdx == 0)
         {
-            pos.y *= -1.0f;
+            pos.x = pos.x * -0.95f;
+        }
+        else if(maxIdx == 1)
+        {
+            pos.y = pos.y * -0.95f;
         }
         else
         {
-            pos.z *= -1.0f;
+            pos.z = pos.z * -0.95f;
         }
-
         transform.position = pos;
+        _rb.isKinematic = false;
+        _rb.velocity = vel;
     }
 }
