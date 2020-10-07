@@ -7,7 +7,6 @@ public class CameraController : MonoBehaviour
 {
     private Vector2 movement;
     private Rigidbody rb;
-    private Transform transform;
     private Camera cam;
 
     private float moveSpeed = 20f; //units/s
@@ -16,7 +15,6 @@ public class CameraController : MonoBehaviour
     public void Start()
     {
         rb = GetComponent<Rigidbody>();
-        transform = GetComponent<Transform>();
         cam = GetComponent<Camera>();
     }
 
@@ -37,8 +35,6 @@ public class CameraController : MonoBehaviour
         vel = transform.right * movement.x * moveSpeed;
         vel += transform.forward * movement.y * moveSpeed;
         rb.velocity = vel;
-        //rb.velocity.x = transform.right * movement.x * moveSpeed;
-        //rb.velocity.y = transform.forward * movement.y * moveSpeed;
     }
 
     //Move controlled by the Input Controller
