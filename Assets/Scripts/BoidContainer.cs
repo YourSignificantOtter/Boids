@@ -21,23 +21,73 @@ public class BoidContainer : MonoBehaviour
 
     public void CalculateBoidRayDirections()
     {
-        //https://github.com/SebLague/Boids/blob/master/Assets/Scripts/BoidHelper.cs
-        int numRays = data.numRays;
-        data.rayDirections = new Vector3[numRays];
+        //The idea behind this is to create a raycast that looks forward in a cone
+        //To raycast the cone we can simplify the math a little
+        //A cone is an infinite number of circles of increasing radii stack on top of each other
+        //To cast a line from the origin (the vertex of the cone) to a point on the last circle of the cone you 
+        //have to cross through each preceding circle.
+        //So we can ray cast to points on the "last" circle of the cone
+        
+        //Get the radius of the last cone
+        float hypotonuse = data.viewDistance / Mathf.Cos(data.FOV / 2.0f);
+        float radius = Mathf.Sqrt(hypotonuse * hypotonuse - data.viewDistance * data.viewDistance);
+        float radiusSqr = radius * radius;
+        
+        //To get better coverage we will sample points within that entire circle rather than just on the perimiter
+        //To do so we will imagine a shrinking circle starting at the max radius and slowly reducing down
+        //At each iteration of the shrinking circle we will sample a number of points on that circles perimeter
+        data.rayDirections = new Vector3[data.numRays];
+        int circles = 5;
+        int pointsPerCircle = data.numRays / circles;
+        float goldenRatio = Mathf.Sqrt (5) / 2; //golden ratio without the leading 1
 
-        float goldenRatio = (1 + Mathf.Sqrt (5)) / 2;
-        float angleIncrement = Mathf.PI * 2 * goldenRatio;
+        //The golden ratio is useful to use as an irrational number for iteration.
+        //This will help us reduce the amount of overlap and gaps in our ray casting
 
-        for(int i = 0; i < numRays; i++)
+        int i = 0; //index into the data.rayDirections array
+
+        float currRadius = radius;
+        float currRadiusIt = currRadius / circles;
+        float currRadiusSqr = currRadius * currRadius;
+
+        Vector3 point = new Vector3();
+        point.z = data.viewDistance;
+        Vector3 dir = new Vector3();
+
+        //Iterate over the number of "shrinking" circles
+        for(int numCircles = circles; numCircles > 0; numCircles--)
         {
-            float t = (float) i / numRays;
-            float inclination = Mathf.Acos (1 - 2 * t);
-            float azimuth = angleIncrement * i;
+            float x = -1.0f * currRadius;
+            for(int numPoints = pointsPerCircle / 2; numPoints > 0; numPoints--)
+            {
+                point.x = x;
+                point.y = Mathf.Sqrt(Mathf.Abs(currRadiusSqr - x * x));
+                dir = point - Vector3.zero;
+                data.rayDirections[i++] = dir;
+                point.y *= -1.0f;
+                dir = point - Vector3.zero;
+                data.rayDirections[i++] = dir;
 
-            float x = Mathf.Sin (inclination) * Mathf.Cos (azimuth);
-            float y = Mathf.Sin (inclination) * Mathf.Sin (azimuth);
-            float z = Mathf.Cos (inclination);
-            data.rayDirections[i] = new Vector3 (x, y, z);
+                //When X >= +currRadius decrement by the irrational number
+                //When X <= -currRadius increment by the irrational number
+                x += goldenRatio;
+                if(x >= currRadius)
+                {
+                    float temp = x % currRadius;
+                    x = currRadius - temp;
+                    goldenRatio *= -1.0f;
+                }
+                else if(x <= -currRadius)
+                {
+                    float temp = Mathf.Abs(x) % currRadius;
+                    x = -currRadius + temp;
+                    goldenRatio *= -1.0f;                    
+                }
+            }
+            //Update the radius value for the circle shirnking
+            currRadius -= currRadiusIt;
+            currRadiusSqr = currRadius * currRadius;
+            goldenRatio = Mathf.Abs(goldenRatio);
         }
     }
 
