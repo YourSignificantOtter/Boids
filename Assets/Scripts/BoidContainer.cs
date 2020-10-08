@@ -16,6 +16,29 @@ public class BoidContainer : MonoBehaviour
     public void Awake()
     {
         BoidList = new List<GameObject>();
+        CalculateBoidRayDirections();
+    }
+
+    public void CalculateBoidRayDirections()
+    {
+        //https://github.com/SebLague/Boids/blob/master/Assets/Scripts/BoidHelper.cs
+        int numRays = data.numRays;
+        data.rayDirections = new Vector3[numRays];
+
+        float goldenRatio = (1 + Mathf.Sqrt (5)) / 2;
+        float angleIncrement = Mathf.PI * 2 * goldenRatio;
+
+        for(int i = 0; i < numRays; i++)
+        {
+            float t = (float) i / numRays;
+            float inclination = Mathf.Acos (1 - 2 * t);
+            float azimuth = angleIncrement * i;
+
+            float x = Mathf.Sin (inclination) * Mathf.Cos (azimuth);
+            float y = Mathf.Sin (inclination) * Mathf.Sin (azimuth);
+            float z = Mathf.Cos (inclination);
+            data.rayDirections[i] = new Vector3 (x, y, z);
+        }
     }
 
     public void Start()

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class Boid : MonoBehaviour
@@ -22,6 +23,10 @@ public class Boid : MonoBehaviour
 
     public void FixedUpdate()
     {
+        //To perform the checks for all the following things we need to do a raycase from the front of the boid
+        //That ray cast needs to cover our FOV and our distance data. Essentially we want to ray cast a conical shape
+        //Sadly we have to use math to figure out how to do that
+
         //Check if we are going to collide with a non-boid object and avoid it
 
         //Perform seperation
@@ -29,6 +34,20 @@ public class Boid : MonoBehaviour
         //Perform alignment
 
         //Perform cohesion
+    }
+
+    //Visualize the rays that are being cast from this Boid if it is selected
+    public void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Ray ray = new Ray();
+        ray.origin = transform.position;
+        
+        for(int i = 0; i < _bd.numRays; i++)
+        {
+            ray.direction = _bd.rayDirections[i];
+            Gizmos.DrawRay(ray);
+        }
     }
 
     public void SetBoidData(BoidData bd)
@@ -44,11 +63,11 @@ public class Boid : MonoBehaviour
         //Spawn the boid at a random location
         Vector3 spawnPos = new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)) * (_bd.bound / 2);
         transform.position = spawnPos;
+        //TODO: How to handle moving in random rotations?
         //Spawn the boid with a random direction
-        _rb.rotation = Random.rotation;
+        //_rb.rotation = Random.rotation;
         //Spawn the boid with a random velocity
-        //The max velocity is the MAGNITUDE of the velocity, not the max of a single component
-        _rb.velocity = Random.insideUnitSphere * _bd.maxVelocity;
+        _rb.velocity = transform.forward * Random.Range(0.5f, _bd.maxVelocity);
     }
 
     void OnTriggerExit(Collider other)
@@ -70,18 +89,7 @@ public class Boid : MonoBehaviour
                 max = Mathf.Abs(pos[i]);
             }
         }
-        if(maxIdx == 0)
-        {
-            pos.x = pos.x * -0.95f;
-        }
-        else if(maxIdx == 1)
-        {
-            pos.y = pos.y * -0.95f;
-        }
-        else
-        {
-            pos.z = pos.z * -0.95f;
-        }
+        pos[maxIdx] *= -0.95f;
         transform.position = pos;
         _rb.isKinematic = false;
         _rb.velocity = vel;

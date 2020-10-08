@@ -12,7 +12,7 @@ public class CameraController : MonoBehaviour
     private Camera cam;
 
     private float moveSpeed = 20f; //units/s
-    private float rotateSpeed = 2.5f; //degrees/s
+    //private float rotateSpeed = 2.5f; //degrees/s
 
     public void Start()
     {

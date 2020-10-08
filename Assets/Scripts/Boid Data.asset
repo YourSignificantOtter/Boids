@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Boid Data
   m_EditorClassIdentifier: 
   FOV: 90
-  viewDistance: 150
-  bound: 200
+  viewDistance: 20
+  bound: 100
   maxVelocity: 10
   maxAngularVel: 15
   seperationWeight: 5
   alignmentWeight: 5
   cohesionWeight: 5
+  numRays: 200
+  rayDirections: []

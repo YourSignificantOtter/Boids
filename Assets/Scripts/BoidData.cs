@@ -15,4 +15,8 @@ public class BoidData : ScriptableObject
     public float seperationWeight;
     public float alignmentWeight;
     public float cohesionWeight;
+
+    public int numRays;
+    public Vector3[] rayDirections;
+    
 }
