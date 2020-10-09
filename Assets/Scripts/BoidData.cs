@@ -7,6 +7,8 @@ public class BoidData : ScriptableObject
     public float FOV;
     public float viewDistance;
 
+    public float localScale;
+
     public float bound;
 
     public float maxVelocity;
